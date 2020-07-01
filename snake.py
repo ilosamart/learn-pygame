@@ -74,17 +74,16 @@ while True:
                 ):
                 my_direction = event.key
 
-            if event.key == K_ESCAPE:
-                game_paused = True
+            # se foi ESC, pause
+            game_paused = (event.key == K_ESCAPE)
 
     # pause
     while game_paused:
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
-            
-            if event.type == KEYDOWN and event.key == K_ESCAPE:
-                game_paused = False
+            game_paused = (event.type == KEYDOWN) and (event.key == K_ESCAPE)
+                
 
     # atualiza a rodada
     for i in range(len(snake) - 1, 0, -1):
