@@ -1,6 +1,22 @@
-import pygame, random
+import random
+import time
+import pygame
 from pygame.locals import *
 
+
+def sair():
+    pygame.quit()
+    quit()
+
+def message(text, color):
+    global screen
+    global font_style
+    text_box = font_style.render(text, True, color)
+    text_rect = text_box.get_rect()
+    text_rect.center = screen_limits[0]/2, screen_limits[1]/2
+    pos_x = ( - text_box.get_height()/2)
+    pos_y = (screen_limits[1] - text_box.get_width()) / 2
+    screen.blit(text_box, text_rect)
 
 def on_grid_random():
     global screen_point_size
@@ -24,10 +40,12 @@ screen_point_size = 20
 screen_limits = (800,800)
 screen_center = (screen_limits[0]//2, screen_limits[1]//2)
 game_paused = False
+game_over = False
 
 pygame.init()
 screen = pygame.display.set_mode(screen_limits)
 pygame.display.set_caption('Snake')
+font_style = pygame.font.SysFont('Ubuntu', 50)
 
 movement_directions = {
     K_UP: (0, -1 * screen_point_size),
@@ -51,7 +69,7 @@ my_direction = K_LEFT
 
 clock = pygame.time.Clock()
 
-while True:
+while not game_over:
     clock.tick(10)
 
     # trata colisão
@@ -62,7 +80,7 @@ while True:
     # trata inputs do usuário
     for event in pygame.event.get():
         if event.type == QUIT:
-            pygame.quit()
+            sair()
 
         if event.type == KEYDOWN:
             # se estou indo para a esquerda não posso ir para a direita (e vice-versa)
@@ -75,16 +93,19 @@ while True:
                 my_direction = event.key
 
             # se foi ESC, pause
-            game_paused = (event.key == K_ESCAPE)
+            if event.key == K_ESCAPE:
+                game_paused = True
+                message('JOGO PAUSADO', (255,255,255))
+                pygame.display.update()
 
-    # pause
+    # jogo pausado
     while game_paused:
         for event in pygame.event.get():
             if event.type == QUIT:
-                pygame.quit()
-            game_paused = (event.type == KEYDOWN) and (event.key == K_ESCAPE)
-                
-
+                sair()
+            if event.type == KEYDOWN and event.key == K_ESCAPE:
+                game_paused = False
+                        
     # atualiza a rodada
     for i in range(len(snake) - 1, 0, -1):
         snake[i] = (snake[i-1][0], snake[i-1][1])
@@ -101,8 +122,9 @@ while True:
     pygame.display.update()
 
     
-
-
 # Be IDLE friendly. If you forget this line, the program will 'hang'
 # on exit.
-pygame.quit()
+message('Já era',(255, 0, 0))
+pygame.display.update()
+time.sleep(2)
+sair()
