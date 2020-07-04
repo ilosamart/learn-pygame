@@ -13,9 +13,9 @@ def message(text, color):
     global font_style
     text_box = font_style.render(text, True, color)
     text_rect = text_box.get_rect()
-    text_rect.center = screen_limits[0]/2, screen_limits[1]/2
-    pos_x = ( - text_box.get_height()/2)
-    pos_y = (screen_limits[1] - text_box.get_width()) / 2
+    text_rect.center = screen_limits[0]//2, screen_limits[1]//2
+    pos_x = ( - text_box.get_height()//2)
+    pos_y = (screen_limits[1] - text_box.get_width()) // 2
     screen.blit(text_box, text_rect)
 
 def on_grid_random():
@@ -36,12 +36,13 @@ def initial_snake(starting_point, size):
     return snake
 
 # dimensões da tela
-screen_point_size = 20
+screen_point_size = 10
 screen_limits = (800,800)
 screen_center = (screen_limits[0]//2, screen_limits[1]//2)
 game_paused = False
 game_over = False
 pontos = 0
+speed = 10+10/(screen_point_size*10)
 
 pygame.init()
 screen = pygame.display.set_mode(screen_limits)
@@ -58,7 +59,7 @@ horizontal_movement = (K_LEFT, K_RIGHT)
 vertical_movement = (K_UP, K_DOWN)
 
 #  objetos do jogo
-snake = initial_snake((200, 200), 20)
+snake = initial_snake((200, 200), 5)
 snake_skin = pygame.Surface((screen_point_size,screen_point_size))
 snake_skin.fill((0,200,0))
 
@@ -71,20 +72,7 @@ my_direction = K_LEFT
 clock = pygame.time.Clock()
 
 while not game_over:
-    clock.tick(10)
-
-    # trata colisão
-    for pedaco_corpo in snake[1:]:
-        game_over = game_over or collision(snake[0], pedaco_corpo)
-
-    if game_over:
-        continue
-
-    # trata comer maçã
-    if collision(snake[0], apple):
-        apple = on_grid_random()
-        snake.append((0,0))
-        pontos += 10
+    clock.tick(speed)
 
     # trata inputs do usuário
     for event in pygame.event.get():
@@ -112,6 +100,7 @@ while not game_over:
         for event in pygame.event.get():
             if event.type == QUIT:
                 game_over = True
+                game_paused = False
             if event.type == KEYDOWN and event.key == K_ESCAPE:
                 game_paused = False
                         
@@ -128,7 +117,22 @@ while not game_over:
     for pos in snake:
         screen.blit(snake_skin,pos)
 
-    pygame.display.update()
+    
+
+    # trata colisão
+    for pedaco_corpo in snake[1:]:
+        game_over = game_over or collision(snake[0], pedaco_corpo)
+
+    # trata comer maçã
+    if collision(snake[0], apple):
+        apple = on_grid_random()
+        snake.append((0,0))
+        pontos += 10
+        speed += 10/(screen_point_size*10)
+        print(f'velocidade ({speed})')
+
+    if not game_over:
+        pygame.display.update()
 
     
 # Be IDLE friendly. If you forget this line, the program will 'hang'
