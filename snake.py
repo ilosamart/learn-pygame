@@ -41,6 +41,7 @@ screen_limits = (800,800)
 screen_center = (screen_limits[0]//2, screen_limits[1]//2)
 game_paused = False
 game_over = False
+pontos = 0
 
 pygame.init()
 screen = pygame.display.set_mode(screen_limits)
@@ -73,14 +74,22 @@ while not game_over:
     clock.tick(10)
 
     # trata colisão
+    for pedaco_corpo in snake[1:]:
+        game_over = game_over or collision(snake[0], pedaco_corpo)
+
+    if game_over:
+        continue
+
+    # trata comer maçã
     if collision(snake[0], apple):
         apple = on_grid_random()
         snake.append((0,0))
+        pontos += 10
 
     # trata inputs do usuário
     for event in pygame.event.get():
         if event.type == QUIT:
-            sair()
+            game_over = True
 
         if event.type == KEYDOWN:
             # se estou indo para a esquerda não posso ir para a direita (e vice-versa)
@@ -95,14 +104,14 @@ while not game_over:
             # se foi ESC, pause
             if event.key == K_ESCAPE:
                 game_paused = True
-                message('JOGO PAUSADO', (255,255,255))
+                message(f'JOGO PAUSADO ({pontos} pontos)', (255,255,255))
                 pygame.display.update()
 
     # jogo pausado
     while game_paused:
         for event in pygame.event.get():
             if event.type == QUIT:
-                sair()
+                game_over = True
             if event.type == KEYDOWN and event.key == K_ESCAPE:
                 game_paused = False
                         
@@ -124,7 +133,7 @@ while not game_over:
     
 # Be IDLE friendly. If you forget this line, the program will 'hang'
 # on exit.
-message('Já era',(255, 0, 0))
+message(f'GAME OVER: {pontos} pontos!',(255, 0, 0))
 pygame.display.update()
 time.sleep(2)
 sair()
